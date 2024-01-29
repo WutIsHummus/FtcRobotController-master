@@ -16,10 +16,12 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDir
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
+import java.util.Objects;
 
 @Autonomous(name="RR Test", group="Linear OpMode")
 public class RRTesting extends LinearOpMode {
@@ -73,29 +75,50 @@ public class RRTesting extends LinearOpMode {
         if(isStopRequested()) return;
         drive.followTrajectory(forwardLift);
         String result = checkPixel(10000, opModeIsActive());
-        Trajectory pixelTraj = null;
-        if (result == "right"){ //Update all paths cause this down work, use linear heading spling
-            pixelTraj = drive.trajectoryBuilder(drive.getPoseEstimate())
+        TrajectorySequence pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
+                .forward(15)
+                .strafeRight(13)
+                .forward(5)
+                .waitSeconds(1)
+                .back(5)
+                .lineToLinearHeading(new Pose2d(40,-35, Math.toRadians(180)))
+                .build();
+        if (Objects.equals(result, "left")){
+            pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                    .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
+                    .forward(15)
+                    .strafeRight(13)
+                    .turn(Math.toRadians(90))
+                    .lineToConstantHeading(new Vector2d(13,-34) )
+                    .waitSeconds(1)
+                    .lineToLinearHeading(new Pose2d(40,-35, Math.toRadians(180)))
+                    .build();
+        }
+        else if (Objects.equals(result, "right")){
+            pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                    .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
                     .forward(15)
                     .strafeRight(13)
                     .forward(5)
+                    .waitSeconds(1)
+                    .back(5)
+                    .lineToLinearHeading(new Pose2d(40,-35, Math.toRadians(180)))
                     .build();
         }
-        else if (result == "left"){
-            pixelTraj = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .forward(15)
-                    .strafeLeft(13)
-                    .forward(5)
+        else if (Objects.equals(result, "mid")){
+            pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                    .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
+                    .strafeRight(4)
+                    .lineToLinearHeading(new Pose2d(16, -34, Math.toRadians(90)))
+                    .waitSeconds(0.5)
+                    .back(4)
+                    .setTangent(Math.toRadians(0))
+                    .lineToLinearHeading(new Pose2d(40,-35, Math.toRadians(180)))
                     .build();
         }
-        else if (result == "mid"){
-            pixelTraj = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .forward(15)
-                    .strafeRight(3)
-                    .forward(13)
-                    .build();
-        }
-        if (pixelTraj != null) drive.followTrajectory(pixelTraj);
+        if (pixelTraj != null) drive.followTrajectorySequence(pixelTraj);
+
 
     }
     private void initTfod() {
