@@ -22,9 +22,9 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import java.util.List;
 import java.util.Objects;
 
-@Autonomous(name="Red RR Auto", group="Linear OpMode")
-public class NewRedAuto extends LinearOpMode {
-    PropDetectionPipelineRedClose propDetectionRed;
+@Autonomous(name="Blue New RR Auto", group="Linear OpMode")
+public class NewBlueAuto extends LinearOpMode {
+    PropDetectionPipelineBlueClose propDetectionBlue;
     String webcamName = "Webcam 1";
     private VisionPortal visionPortal2;
 
@@ -34,7 +34,7 @@ public class NewRedAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        PropDetectionPipelineRedClose propDetector = new PropDetectionPipelineRedClose();
+        PropDetectionPipelineBlueClose propDetector = new PropDetectionPipelineBlueClose();
 
         visionPortal2 = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
@@ -96,37 +96,33 @@ public class NewRedAuto extends LinearOpMode {
         TrajectorySequence pixelTraj;
         if (placementPosition == PlacementPosition.LEFT){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(20)
-                    .strafeRight(13)
-                    .turn(Math.toRadians(90))
-                    .lineToConstantHeading(new Vector2d(13,-30) )
-                    .addDisplacementMarker(() -> moveFlopper(-100))
-                    .waitSeconds(0.5)
-                    .lineToLinearHeading(new Pose2d(40,-30, Math.toRadians(180)))
+                    .forward(15)
+                    .strafeLeft(13)
+                    .forward(5)
+                    .waitSeconds(1)
+                    .back(5)
+                    .lineToLinearHeading(new Pose2d(40,40, Math.toRadians(180)))
                     .build();
 
         }
         else if (placementPosition == PlacementPosition.CENTER){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(5)
-                    .strafeRight(4)
-                    .lineToLinearHeading(new Pose2d(16, -34, Math.toRadians(90)))
-                    .addDisplacementMarker(() -> moveFlopper(-100))
+                    .strafeLeft(4)
+                    .lineToLinearHeading(new Pose2d(16, 34, Math.toRadians(-90)))
                     .waitSeconds(0.5)
                     .back(4)
                     .setTangent(Math.toRadians(0))
-                    .lineToLinearHeading(new Pose2d(40,-35, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(40,35, Math.toRadians(180)))
                     .build();
         }
         else {
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(20)
-                    .strafeRight(13)
-                    .forward(5)
-                    .addDisplacementMarker(() -> moveFlopper(-100))
-                    .waitSeconds(0.5)
-                    .back(5)
-                    .lineToLinearHeading(new Pose2d(40,-40, Math.toRadians(180)))
+                    .forward(15)
+                    .strafeLeft(13)
+                    .turn(Math.toRadians(-90))
+                    .lineToConstantHeading(new Vector2d(13,34) )
+                    .waitSeconds(1)
+                    .lineToLinearHeading(new Pose2d(40,30, Math.toRadians(180)))
                     .build();
         }
         if (pixelTraj != null) drive.followTrajectorySequence(pixelTraj);

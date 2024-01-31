@@ -30,7 +30,8 @@ public class BlueRRAuto extends LinearOpMode {
     private Servo armGate, box;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException  {
+
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         liftLeft = hardwareMap.get(DcMotorEx .class, "liftLeft");
         liftRight = hardwareMap.get(DcMotorEx.class, "liftRight");

@@ -23,8 +23,7 @@ public class PropDetectionPipelineRedClose implements VisionProcessor {
     double redAmount1 = 0;
     double redAmount2 = 0;
 
-    double redAmount3 = 0;
-    private final double redThreshold = 4000;
+    private final double redThreshold = 10000;
     private volatile PlacementPosition placementPosition = PlacementPosition.CENTER;
 
     public PropDetectionPipelineRedClose() {
@@ -49,37 +48,31 @@ public class PropDetectionPipelineRedClose implements VisionProcessor {
         // Define the coordinates of three rectangles
         // You need to adjust these coordinates based on your screen resolution
         // You need to adjust these coordinates based on your screen resolution
-        Rect rect1 = new Rect(10, 100, 100, 100);
-        Rect rect2 = new Rect(290, 80, 100, 100);
-        Rect rect3 = new Rect(500, 230, 100, 100);
+        Rect rect1 = new Rect(600, 250, 150, 250);
+        Rect rect2 = new Rect(200, 375, 250, 150);
 
         // Draw rectangles on the output
-        drawRectangle(maskedInputMat, rect1, new Scalar(255, 0, 0)); // Blue
+        drawRectangle(maskedInputMat, rect1, new Scalar(255, 0, 0)); // Red
         drawRectangle(maskedInputMat, rect2, new Scalar(0, 255, 0)); // Green
-        drawRectangle(maskedInputMat, rect3, new Scalar(0, 0, 255)); // Green
 
-        drawRectangle(frame, rect1, new Scalar(255, 0, 0)); // Blue
+        drawRectangle(frame, rect1, new Scalar(255, 0, 0)); // Red
         drawRectangle(frame, rect2, new Scalar(0, 255, 0)); // Green
-        drawRectangle(frame, rect3, new Scalar(0, 0, 255)); // Green
 
-
+// I was here-andrick
 
         // Calculate the amount of red in each rectangle
         Mat r1 = maskedInputMat.submat(rect1);
         Mat r2 = maskedInputMat.submat(rect2);
-        Mat r3 = maskedInputMat.submat(rect3);
         redAmount1 = calculateRedAmount(r1);
         redAmount2 = calculateRedAmount(r2);
-        redAmount3 = calculateRedAmount(r3);
         r1.release();
         r2.release();
-        r3.release();
 
 
-        if (redAmount1 > redThreshold) {
-            this.placementPosition = PlacementPosition.LEFT;
-        } else if (redAmount2 > redThreshold) {
+        if (redAmount2 > redThreshold) {
             this.placementPosition = PlacementPosition.CENTER;
+        } else if (redAmount1 > redThreshold) {
+            this.placementPosition = PlacementPosition.LEFT;
         } else {
             this.placementPosition = PlacementPosition.RIGHT;
         }
@@ -128,9 +121,6 @@ public class PropDetectionPipelineRedClose implements VisionProcessor {
         return redAmount2;
     }
 
-    public double getRedAmount3() {
-        return redAmount3;
-    }
     private void drawRectangle(Mat mat, Rect rect, Scalar color) {
         Imgproc.rectangle(mat, rect.tl(), rect.br(), color, 2);
     }
