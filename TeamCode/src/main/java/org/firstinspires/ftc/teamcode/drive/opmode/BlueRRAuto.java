@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -23,8 +22,8 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import java.util.List;
 import java.util.Objects;
 
-@Autonomous(name="Red RR Auto", group="Linear OpMode")
-public class RRTesting extends LinearOpMode {
+@Autonomous(name="Blue RR Auto", group="Linear OpMode")
+public class BlueRRAuto extends LinearOpMode {
     TfodProcessor myTfodProcessor;
     VisionPortal myVisionPortal;
     private DcMotorEx liftLeft, liftRight, middleBar, flopper;
@@ -64,7 +63,7 @@ public class RRTesting extends LinearOpMode {
         middleBar.setPower(0.5);
         */
         initTfod();
-        drive.setPoseEstimate(new Pose2d(10, -62.5,Math.toRadians(90)));
+        drive.setPoseEstimate(new Pose2d(10, 62.5,Math.toRadians(-90)));
 
         Trajectory forwardLift;
         forwardLift = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -80,36 +79,37 @@ public class RRTesting extends LinearOpMode {
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
                     .forward(15)
-                    .strafeRight(13)
-                    .turn(Math.toRadians(90))
-                    .lineToConstantHeading(new Vector2d(13,-30) )
+                    .strafeLeft(13)
+                    .forward(5)
                     .waitSeconds(1)
-                    .lineToLinearHeading(new Pose2d(40,-40, Math.toRadians(180)))
+                    .back(5)
+                    .lineToLinearHeading(new Pose2d(40,40, Math.toRadians(180)))
                     .build();
         }
         else if (Objects.equals(result, "right")){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
                     .forward(15)
-                    .strafeRight(13)
-                    .forward(5)
+                    .strafeLeft(13)
+                    .turn(Math.toRadians(-90))
+                    .lineToConstantHeading(new Vector2d(13,34) )
                     .waitSeconds(1)
-                    .back(5)
-                    .lineToLinearHeading(new Pose2d(40,-30, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(40,30, Math.toRadians(180)))
+
                     .build();
         }
         else if (Objects.equals(result, "mid")){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .addDisplacementMarker(0,() -> moveLiftToPosition(0, 0))
-                    .strafeRight(4)
-                    .lineToLinearHeading(new Pose2d(16, -34, Math.toRadians(90)))
+                    .strafeLeft(4)
+                    .lineToLinearHeading(new Pose2d(16, 34, Math.toRadians(-90)))
                     .waitSeconds(0.5)
                     .back(4)
                     .setTangent(Math.toRadians(0))
-                    .lineToLinearHeading(new Pose2d(40,-35, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(40,35, Math.toRadians(180)))
                     .build();
         }
         if (pixelTraj != null) drive.followTrajectorySequence(pixelTraj);
+
 
     }
     private void initTfod() {
@@ -188,7 +188,7 @@ public class RRTesting extends LinearOpMode {
         for (Recognition recognition : currentRecognitions) {
             double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
             double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
-            telemetry.addData("",v);
+            telemetry.addData(""," ");
             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
