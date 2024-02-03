@@ -11,20 +11,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.Vision.PlacementPosition;
 import org.firstinspires.ftc.teamcode.drive.Vision.PropDetectionPipelineBlueClose;
-import org.firstinspires.ftc.teamcode.drive.Vision.PropDetectionPipelineRedClose;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-import java.util.List;
-import java.util.Objects;
-
-@Autonomous(name="Red RR Auto Close", group="Linear OpMode")
-public class NewRedAuto extends LinearOpMode {
-    PropDetectionPipelineRedClose propDetectionRed;
+@Autonomous(name="Blue RR Auto Far", group="Linear OpMode")
+public class BlueFarAuto extends LinearOpMode {
+    PropDetectionPipelineBlueClose propDetectionBlue;
     String webcamName = "Webcam 1";
     private VisionPortal visionPortal2;
 
@@ -34,7 +29,7 @@ public class NewRedAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        PropDetectionPipelineRedClose propDetector = new PropDetectionPipelineRedClose();
+        PropDetectionPipelineBlueClose propDetector = new PropDetectionPipelineBlueClose();
 
         visionPortal2 = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
@@ -59,7 +54,6 @@ public class NewRedAuto extends LinearOpMode {
         flopper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flopper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flopper.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        flopper.setPower(0);
         box = hardwareMap.servo.get("box");
         armGate = hardwareMap.servo.get("armGate");
 
@@ -67,7 +61,7 @@ public class NewRedAuto extends LinearOpMode {
         liftLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        drive.setPoseEstimate(new Pose2d(10, -62.5,Math.toRadians(90)));
+        drive.setPoseEstimate(new Pose2d(10, 62.5,Math.toRadians(-90)));
 
 
         while (opModeInInit()) {
@@ -97,13 +91,12 @@ public class NewRedAuto extends LinearOpMode {
         TrajectorySequence pixelTraj;
         if (placementPosition == PlacementPosition.LEFT){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(20)
-                    .strafeRight(13)
-                    .turn(Math.toRadians(90))
-                    .lineToConstantHeading(new Vector2d(8,-34) )
+                    .forward(5)
+                    .lineToLinearHeading(new Pose2d(21,42, Math.toRadians(-90)))
                     .addDisplacementMarker(() -> moveFlopper(-150))
                     .waitSeconds(0.1)
-                    .lineToLinearHeading(new Pose2d(45,-28, Math.toRadians(180)))
+                    .back(5)
+                    .lineToLinearHeading(new Pose2d(45,41, Math.toRadians(180)))
                     .addDisplacementMarker(() -> moveLiftToPosition(-800))
                     .build();
 
@@ -111,23 +104,24 @@ public class NewRedAuto extends LinearOpMode {
         else if (placementPosition == PlacementPosition.CENTER){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .forward(5)
-                    .lineToLinearHeading(new Pose2d(13, -32, Math.toRadians(90)))
+                    .lineToLinearHeading(new Pose2d(13, 33, Math.toRadians(-90)))
                     .addDisplacementMarker(() -> moveFlopper(-150))
                     .waitSeconds(0.1)
                     .back(4)
                     .setTangent(Math.toRadians(0))
-                    .lineToLinearHeading(new Pose2d(45,-35, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(45,35, Math.toRadians(180)))
                     .addDisplacementMarker(() -> moveLiftToPosition(-800))
                     .build();
         }
         else {
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(5)
-                    .lineToLinearHeading(new Pose2d(19,-39, Math.toRadians(90)))
+                    .forward(20)
+                    .strafeLeft(13)
+                    .turn(Math.toRadians(-90))
+                    .lineToConstantHeading(new Vector2d(10,34) )
                     .addDisplacementMarker(() -> moveFlopper(-150))
                     .waitSeconds(0.1)
-                    .back(5)
-                    .lineToLinearHeading(new Pose2d(45,-41, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(45,30, Math.toRadians(180)))
                     .addDisplacementMarker(() -> moveLiftToPosition(-800))
                     .build();
         }
@@ -135,25 +129,18 @@ public class NewRedAuto extends LinearOpMode {
         moveMiddle(-1350);
         box.setPosition(0.3);
         while(middleBar.isBusy()){if (isStopRequested()) return;}
-        TrajectorySequence nudge = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .back(3)
+        Trajectory nudge = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .back(4)
                 .addDisplacementMarker(2, ()-> armGate.setPosition(0.6))
-                .waitSeconds(0.5)
                 .build();
-        drive.followTrajectorySequence(nudge);
+        drive.followTrajectory(nudge);
         moveMiddle(-300);
         box.setPosition(0.3);
         while(middleBar.isBusy()){if (isStopRequested()) return;}
         moveLiftToPosition(0);
         while(liftRight.isBusy()){if (isStopRequested()) return;}
-        moveMiddle(-15);
+        moveMiddle(0);
         box.setPosition(0);
-        while(middleBar.isBusy()){if (isStopRequested()) return;}
-        moveMiddle(50);
-        Trajectory park = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineTo(new Vector2d(45,-25))
-                .build();
-        drive.followTrajectory(park);
 
 
     }

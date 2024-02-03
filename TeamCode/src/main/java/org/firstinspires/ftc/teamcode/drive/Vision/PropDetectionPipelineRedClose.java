@@ -23,7 +23,7 @@ public class PropDetectionPipelineRedClose implements VisionProcessor {
     double redAmount1 = 0;
     double redAmount2 = 0;
 
-    private final double redThreshold = 10000;
+    private final double redThreshold = 6000;
     private volatile PlacementPosition placementPosition = PlacementPosition.CENTER;
 
     public PropDetectionPipelineRedClose() {
