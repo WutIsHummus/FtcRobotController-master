@@ -50,7 +50,7 @@ public class BlueFarAuto extends LinearOpMode {
         liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         middleBar.setDirection(DcMotor.Direction.REVERSE);
-        liftRight.setDirection(DcMotor.Direction.REVERSE);
+        liftLeft.setDirection(DcMotor.Direction.REVERSE);
         flopper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flopper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flopper.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,7 +61,7 @@ public class BlueFarAuto extends LinearOpMode {
         liftLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        drive.setPoseEstimate(new Pose2d(10, 62.5,Math.toRadians(-90)));
+        drive.setPoseEstimate(new Pose2d(-35, 62.5,Math.toRadians(-90)));
 
 
         while (opModeInInit()) {
@@ -87,60 +87,72 @@ public class BlueFarAuto extends LinearOpMode {
         moveMiddle(-250);
         while(middleBar.isBusy()){if (isStopRequested()) return;}
 
+        //
         placementPosition = propDetector.getPlacementPosition();
         TrajectorySequence pixelTraj;
         if (placementPosition == PlacementPosition.LEFT){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(5)
-                    .lineToLinearHeading(new Pose2d(21,42, Math.toRadians(-90)))
-                    .addDisplacementMarker(() -> moveFlopper(-150))
-                    .waitSeconds(0.1)
-                    .back(5)
-                    .lineToLinearHeading(new Pose2d(45,41, Math.toRadians(180)))
-                    .addDisplacementMarker(() -> moveLiftToPosition(-800))
+                    .lineTo(new Vector2d(-35, 47))
+                    .splineTo(new Vector2d(-33,32), 0)
+                    .addDisplacementMarker(() -> moveFlopper(300, 1f))
+                    .waitSeconds(0.5)
+                    .setTangent(Math.toRadians(-180))
+                    .splineTo(new Vector2d(-35, 10), 0)
+                    .splineToLinearHeading(new Pose2d(20, 11, Math.toRadians(-180)), Math.toRadians(0))
+                    .splineToConstantHeading(new Vector2d(47, 26), Math.toRadians(0))
+                    .addDisplacementMarker(() -> moveLiftToPosition(-500))
                     .build();
 
         }
         else if (placementPosition == PlacementPosition.CENTER){
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(5)
-                    .lineToLinearHeading(new Pose2d(13, 33, Math.toRadians(-90)))
-                    .addDisplacementMarker(() -> moveFlopper(-150))
-                    .waitSeconds(0.1)
-                    .back(4)
-                    .setTangent(Math.toRadians(0))
-                    .lineToLinearHeading(new Pose2d(45,35, Math.toRadians(180)))
-                    .addDisplacementMarker(() -> moveLiftToPosition(-800))
+                    .splineTo( new Vector2d(14,33), Math.toRadians(-90))
+                    .addDisplacementMarker(() -> moveFlopper(300, 1f))
+                    .waitSeconds(0.5)
+                    .setTangent(Math.toRadians(90))
+                    .splineTo(new Vector2d(23, 40), Math.toRadians(0))
+                    .splineTo(new Vector2d(47, 34), Math.toRadians(0))
+                    .addDisplacementMarker(() -> moveLiftToPosition(-500))
                     .build();
         }
         else {
             pixelTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .forward(20)
-                    .strafeLeft(13)
+                    .splineTo( new Vector2d(-47,37), Math.toRadians(-90))
+                    .addDisplacementMarker(() -> moveFlopper(300, 1f))
+                    .waitSeconds(0.5)
+                    .setTangent(Math.toRadians(90))
+                    .splineToConstantHeading(new Vector2d(-35, 55), Math.toRadians(-90))
+                    .setTangent(0)
                     .turn(Math.toRadians(-90))
-                    .lineToConstantHeading(new Vector2d(10,34) )
-                    .addDisplacementMarker(() -> moveFlopper(-150))
-                    .waitSeconds(0.1)
-                    .lineToLinearHeading(new Pose2d(45,30, Math.toRadians(180)))
-                    .addDisplacementMarker(() -> moveLiftToPosition(-800))
+                    .lineToConstantHeading(new Vector2d(-35, 23))
+                    .splineToConstantHeading(new Vector2d(20, 13), Math.toRadians(0))
+                    .splineToConstantHeading(new Vector2d(47, 26), Math.toRadians(0))
+                    .addDisplacementMarker(() -> moveLiftToPosition(-500))
                     .build();
         }
         if (pixelTraj != null) drive.followTrajectorySequence(pixelTraj);
-        moveMiddle(-1350);
-        box.setPosition(0.3);
+        moveMiddle(-1300);
+        box.setPosition(0.6);
         while(middleBar.isBusy()){if (isStopRequested()) return;}
-        Trajectory nudge = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(4)
-                .addDisplacementMarker(2, ()-> armGate.setPosition(0.6))
+        TrajectorySequence nudge = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .back(7)
+                .addDisplacementMarker(5, ()-> armGate.setPosition(0.6))
+                .waitSeconds(0.5)
                 .build();
-        drive.followTrajectory(nudge);
+        drive.followTrajectorySequence(nudge);
         moveMiddle(-300);
         box.setPosition(0.3);
         while(middleBar.isBusy()){if (isStopRequested()) return;}
         moveLiftToPosition(0);
         while(liftRight.isBusy()){if (isStopRequested()) return;}
-        moveMiddle(0);
-        box.setPosition(0);
+        Trajectory park = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineTo(new Vector2d(45,25))
+                .addDisplacementMarker(() -> {
+                    moveMiddle(0);
+                    box.setPosition(0);
+                })
+                .build();
+        drive.followTrajectory(park);
 
 
     }
@@ -152,7 +164,7 @@ public class BlueFarAuto extends LinearOpMode {
         liftLeft.setPower(0.5); // Adjust the power as necessary
         liftRight.setPower(0.5); // Adjust the power as necessary
     }
-    private void moveFlopper(int pos){
+    private void moveFlopper(int pos, float pw){
         flopper.setTargetPosition(pos);
         flopper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         flopper.setPower(0.5);

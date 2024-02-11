@@ -15,20 +15,18 @@ public class MeepMeepTesting {
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Required: Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(35, 35, Math.toRadians(180), Math.toRadians(180), 15)
                 // Option: Set theme. Default = ColorSchemeRedDark()
                 .setColorScheme(new ColorSchemeRedDark())
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(10, 62.5,Math.toRadians(-90)))
-                                .forward(20)
-                                .strafeLeft(13)
-                                .turn(Math.toRadians(-90))
-                                .lineToConstantHeading(new Vector2d(10,30) )
-                                //.addDisplacementMarker(() -> moveFlopper(-150))
-                                .waitSeconds(0.1)
-                                .lineToLinearHeading(new Pose2d(45,28, Math.toRadians(180)))
-                                .lineTo(new Vector2d(45,-30))
-                                //.addDisplacementMarker(() -> moveLiftToPosition(-800))
+                        drive.trajectorySequenceBuilder(new Pose2d(10, -62.5,Math.toRadians(90)))
+                                .splineTo( new Vector2d(13,-33), Math.toRadians(90))
+                                //.addDisplacementMarker(() -> moveFlopper(300, 1f))
+                                .waitSeconds(0.01)
+                                .setTangent(Math.toRadians(-90))
+                                .splineToConstantHeading(new Vector2d(23, -45), Math.toRadians(0))
+                                .splineTo(new Vector2d(45, -35), Math.toRadians(90))
+                                //.addDisplacementMarker(() -> moveLiftToPosition(-500))
                                 .build()
                 );
 
